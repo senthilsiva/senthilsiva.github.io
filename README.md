@@ -1,37 +1,38 @@
-## Welcome to GitHub Pages
+# senthilsiva.com
 
-You can use the [editor on GitHub](https://github.com/senthilsiva/senthilsiva.github.io/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+Technical writings on authorization, security, AI agents, and systems.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+**Live site:** [https://www.senthilsiva.com](https://www.senthilsiva.com)
 
-### Markdown
+## Focus
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+This site hosts longer-form posts on:
 
-```markdown
-Syntax highlighted code block
+- Capability-based authorization and attenuable authority
+- Structural security (making harmful actions unrepresentable rather than merely unlikely)
+- Prompt injection as an authorization problem
+- Rust, runtime boundaries, and agentic systems
+- Related work in OAuth, cloud infrastructure, and application security
 
-# Header 1
-## Header 2
-### Header 3
+See the [About](/about) page for more background and the current focus on [Warden](https://github.com/senthil1216/attenuate-agent), a Rust reference runtime for strict, auditable limits on agent tool calls.
 
-- Bulleted
-- List
+## Local development
 
-1. Numbered
-2. List
+This is a [Jekyll](https://jekyllrb.com/) site using the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme.
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```bash
+bundle install
+bundle exec jekyll serve
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+Then open http://localhost:4000.
 
-### Jekyll Themes
+## License / usage
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/senthilsiva/senthilsiva.github.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+The opinions expressed are my own. Post content is generally available under the terms typical for technical blogs (feel free to link, quote with attribution, and learn from the examples). Code snippets in posts are MIT unless otherwise noted in the post.
 
-### Support or Contact
+## Source
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+The source for this GitHub Pages site lives in this repository.
+
+Contributions, issues, and suggestions are welcome via PR or email (mail@senthilsiva.com).
