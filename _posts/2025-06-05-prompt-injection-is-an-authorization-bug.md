@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Prompt Injection Is an Authorization Bug"
+description: "Capability-bounded tool calls for AI agents — where widening the agent's authority isn't just blocked, it's unrepresentable."
 date: 2025-06-05
 tags:
   - security
@@ -11,6 +12,7 @@ tags:
   - capability-security
 pin: true   # show prominently on home
 comments: true
+mermaid: true
 ---
 
 > **TL;DR** — Same injected tool-call intent. One run leaks a secret and exfiltrates it. The other denies it *before any side effect* — because the runtime's API cannot express the operation that would widen the agent's authority. This isn't a better prompt filter or a smarter detector. It's a capability-authorization boundary applied to every tool call. I'll show you the contrast, the design, and — honestly — what it does **not** defend against.
@@ -60,27 +62,27 @@ This is a **structural** property, not a heuristic. It does **not** depend on th
 
 ## The design
 
-The runtime — I call it **Warden** — is a small set of Rust crates plus a reference agent. The flow:
+The runtime — I call it **Warden** — is a small set of Rust crates plus a reference agent. The critical path (green = trusted; red = the untrusted boundary):
 
+```mermaid
+flowchart TD
+    M["Task manifest<br/>(trusted · outside workspace · TCB)"] -->|mint| R["Root capability<br/>biscuit token: fs roots · exec allowlist · network · TTL"]
+    R --> O["Orchestrator<br/>(trusted code)"]
+    P["Untrusted model output<br/>— a tool call"] -. emits .-> O
+    O -->|"attenuate: narrow + bind"| C["Single-use child capability<br/>seconds TTL · blake3(tool+args+nonce)"]
+    C --> PEP["PEP — verify<br/>signature chain · expiry · request binding"]
+    PEP --> PDP{"PDP<br/>default-deny"}
+    PDP -->|allow| EX["execute tool"]
+    PDP -->|deny| ERR["structured error → back to the model"]
+    EX --> AUD[("Hash-chained audit log<br/>names the failing caveat")]
+    ERR --> AUD
+    classDef trust fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
+    classDef untrust fill:#ffebee,stroke:#c62828,color:#b71c1c;
+    class M,R,O,C,PEP,PDP,EX,AUD trust;
+    class P untrust;
 ```
-Task manifest (trusted, outside workspace)
-   │  mints
-   ▼
-Root capability  ── biscuit token: readable roots, writable roots, exec allowlist, network policy, TTL
-   │
-   ▼
-Orchestrator (trusted code; behavioral decisions driven by an UNTRUSTED model)
-   │   <-- TRUST BOUNDARY -->
-   ▼
-Model emits a tool call
-   │  attenuate → single-use child capability (narrowed scope, seconds TTL, bound to THIS call)
-   ▼
-PEP — verify signature chain, expiry, request binding
-   │  └── PDP — default-deny decision over the capability's permissions
-   ▼
-allow → execute → result back into the loop
-deny  → structured error back into the loop + audit entry
-```
+
+The one trust boundary is the red node: *everything* the model emits is untrusted input. The orchestrator's **code** is trusted; the orchestrator being behaviorally *tricked* is the exact thing defended against.
 
 The load-bearing pieces:
 
@@ -115,8 +117,7 @@ There's one `AUTHZ=off|on` toggle. `off` is the deliberately vulnerable baseline
 [ALLOW] network  sent 19 bytes    # exfil to the listener
 ```
 
-`sinks.log`:
-
+`sink.log`:
 ```
 payload: exfiltrating secret
 ```
@@ -134,7 +135,7 @@ The audit log has **zero** `ATTENUATED` or `DENIED` entries. Pure ambient author
 [DENY ] network  network policy denies all egress
 ```
 
-`sinks.log`: **empty.**
+`sink.log`: **empty.**
 
 And the audit log now tells the whole story — a fresh child capability per call, and named denials:
 
@@ -160,6 +161,55 @@ Two things to notice:
 2. **The legitimate fix still completes.** In-scope read, write to the writable root, and the allowlisted `exec` all succeed. Enforcement didn't cripple the agent — it bounded it.
 
 Same injected intent. One run leaks everything; the other denies it — because authority can only narrow.
+
+---
+
+## Under the hood (for the curious)
+
+Two mechanisms carry the whole guarantee. Skim past this if you just want the argument — but this is where "structural" stops being a slogan.
+
+**1. Widening isn't an error you catch — it's an operation that doesn't exist.**
+
+A child capability is *only* ever created by requesting a scope, and the request is validated to be a *narrowing* before any token is minted. `ChildCapability`'s fields are private; there is no public constructor that sets permissions directly. So "give myself more authority" isn't a function you can call:
+
+```rust
+// You can only ASK for a (narrower) scope. There is no "set permissions" API.
+pub fn attenuate(&self, req: AttenuationRequest, now: DateTime<Utc>)
+    -> Result<ChildCapability, CapabilityError>;
+
+// ...and asking for more than the parent is a typed error, not a code path:
+fn validate_attenuation(parent: &PermissionSet, /* … */ req: &AttenuationRequest)
+    -> Result<(), CapabilityError>
+{
+    if !parent.contains_all_roots(&req.readable_roots, false) {
+        return Err(CapabilityError::ReadScopeWidened); // cannot mint a wider child
+    }
+    // …same for writable roots, the exec allowlist, and TTL
+    Ok(())
+}
+```
+
+The narrowing is enforced two ways: this runtime check, *and* a type-level constraint where the only public path to a `ChildCapability` is append-only attenuation — backed by property tests over random attenuation chains asserting the permitted set can only shrink.
+→ [`capability/src/lib.rs`](https://github.com/senthil1216/attenuate-agent/blob/main/capability/src/lib.rs) (`attenuate`, `validate_attenuation`)
+
+**2. Every child is bound to one exact invocation.**
+
+Before each tool call the orchestrator mints a fresh child that is single-use, seconds-TTL, and cryptographically bound to *this* call:
+
+```rust
+pub struct RequestBinding {
+    pub tool_name: String,
+    pub argument_hash: [u8; 32], // blake3(tool_name ∥ canonical_args ∥ nonce)
+    pub nonce: Uuid,
+}
+
+pub fn hash_tool_arguments(tool_name: &str, args: &[u8], nonce: Uuid) -> [u8; 32];
+```
+
+At execution time the PEP re-derives that hash from the *actual* request. A replay with the same tool name but different arguments — or a different nonce — fails the binding check. That closes the "same ID, different args" replay many capability systems leave open.
+→ [`capability/src/lib.rs`](https://github.com/senthil1216/attenuate-agent/blob/main/capability/src/lib.rs) (`RequestBinding`, `hash_tool_arguments`)
+
+*(The agent loop that drives an untrusted model through all of this — the `Principal` trait + `run_principal` — lives in [`agent/src/lib.rs`](https://github.com/senthil1216/attenuate-agent/blob/main/agent/src/lib.rs).)*
 
 ---
 
