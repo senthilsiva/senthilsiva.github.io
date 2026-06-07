@@ -1,60 +1,139 @@
-title: Senthil siva
-author:
-  name: senthil1216
+# Chirpy configuration for Senthil Siva
+# https://github.com/cotes2020/jekyll-theme-chirpy
+
+theme: jekyll-theme-chirpy
+
+lang: en
+timezone: Asia/Kolkata   # adjust if needed
+
+# Site identity
+title: Senthil Siva
+tagline: Technical writings on authorization, security, and systems
+description: >-
+  Technical writings on authorization, security, AI agents, Rust, and systems.
+  By Senthil Siva.
+
+url: "https://www.senthilsiva.com"
+baseurl: ""
+
+github:
+  username: senthil1216
+
+social:
+  name: Senthil Siva
   email: mail@senthilsiva.com
-description: > # this means to ignore newlines until "show_excerpts:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  links:
+    - https://github.com/senthil1216
+    - https://www.linkedin.com/in/senthil-siva-065a258
 
-show_excerpts: false # set to true to show excerpts on the homepage
+# Theme
+toc: true
+theme_mode:   # empty = follow system + toggle available
 
-# Minima date format
-# refer to https://shopify.github.io/liquid/filters/date/ if you want to customize this
-minima:
-  date_format: "%b %-d, %Y"
+# Analytics (add later if desired)
+analytics:
+  google:
+    id:
+  goatcounter:
+    id:
 
-  # generate social links in footer
-  social_links:
-    twitter: jekyllrb
-    github:  jekyll
-    # devto: jekyll
-    # dribbble: jekyll
-    # facebook: jekyll
-    # flickr:   jekyll
-    # instagram: jekyll
-    # linkedin: jekyll
-    # pinterest: jekyll
-    # youtube: jekyll
-    # youtube_channel: UC8CXR0-3I70i1tfPg1PAE1g
-    # youtube_channel_name: CloudCannon
-    # telegram: jekyll
-    # googleplus: +jekyll
-    # microdotblog: jekyll
-    # keybase: jekyll
+# Comments via Giscus (GitHub Discussions)
+# Setup instructions:
+# 1. Enable Discussions on your GitHub repo (Settings → General → Features)
+# 2. Visit https://giscus.app/ and select your repo: senthil1216/senthilsiva.github.io
+# 3. Choose or create a category (e.g. "Blog Comments")
+# 4. Copy the repo_id and category_id below
+comments:
+  provider: giscus
+  giscus:
+    repo: senthil1216/senthilsiva.github.io
+    repo_id:          # e.g. R_kgDO... — get from https://giscus.app
+    category: Blog Comments
+    category_id:      # e.g. DIC_kwDO... — get from https://giscus.app
+    mapping: pathname
+    strict: 0
+    reactions_enabled: 1
+    input_position: bottom
+    lang: en
 
-    # Mastodon instances
-    # mastodon:
-    # - username: jekyll
-    #   instance: example.com
-    # - username: jekyll2
-    #   instance: example.com
+# PWA (nice to have)
+pwa:
+  enabled: true
+  cache:
+    enabled: true
 
-    # GitLab instances
-    # gitlab:
-    # - username: jekyll
-    #   instance: example.com
-    # - username: jekyll2
-    #   instance: example.com
+paginate: 10
 
-# If you want to link only specific pages in your header, uncomment
-# this and add the path to the pages in order as they should show up
-#header_pages:
-# - about.md
+# Kramdown / syntax
+kramdown:
+  footnote_backlink: "&#8617;&#xfe0e;"
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
 
-# Build settings
-theme: minima
+# Collections for tabs (About, Archives, Tags, Categories)
+collections:
+  tabs:
+    output: true
+    sort_by: order
 
-plugins:
- - jekyll-feed
- - jekyll-seo-tag
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      comments: true
+      toc: true
+      permalink: /posts/:title/
+  - scope:
+      path: _drafts
+    values:
+      comments: false
+  - scope:
+      path: ""
+      type: tabs
+    values:
+      layout: page
+      permalink: /:title/
+
+sass:
+  style: compressed
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  profile: false
+  blanklines: false
+  ignore:
+    envs: [development]
+
+exclude:
+  - "*.gem"
+  - "*.gemspec"
+  - docs
+  - tools
+  - README.md
+  - LICENSE
+  - purgecss.js
+  - "*.config.js"
+  - "package*.json"
+
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/
+
+# Note: Do not add a top-level `plugins:` list for jekyll-feed, jekyll-seo-tag, etc.
+# Chirpy's theme gem (`jekyll-theme-chirpy`) already depends on and activates them.
+# Adding them here without also listing the gems in Gemfile causes "cannot load such file" errors.

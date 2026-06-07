@@ -1,5 +1,9 @@
 ---
-layout: post
+title: Device Code Authorization
+date: 2022-08-20
+tags:
+  - oauth
+  - authorization
 ---
 
 ### Device Code Authorization
