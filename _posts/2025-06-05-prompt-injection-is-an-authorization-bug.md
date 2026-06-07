@@ -16,7 +16,7 @@ comments: true
 > **TL;DR** — Same injected tool-call intent. One run leaks a secret and exfiltrates it. The other denies it *before any side effect* — because the runtime's API cannot express the operation that would widen the agent's authority. This isn't a better prompt filter or a smarter detector. It's a capability-authorization boundary applied to every tool call. I'll show you the contrast, the design, and — honestly — what it does **not** defend against.
 
 <!-- HERO ARTIFACT -->
-![Same injected tool-call intent. AUTHZ=off leaks the secret + exfils. AUTHZ=on structurally denies both *before any side effect* (legitimate work still completes).](https://raw.githubusercontent.com/senthil1216/attenuate-agent/main/assets/demo-contrast.gif)
+![Same injected tool-call intent. AUTHZ=off leaks the secret + exfils. AUTHZ=on structurally denies both *before any side effect* (legitimate work still completes).](/assets/img/posts/demo-contrast.gif)
 
 ---
 
