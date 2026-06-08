@@ -2,7 +2,7 @@
 layout: post
 title: "Prompt Injection Is an Authorization Bug"
 description: "Capability-bounded tool calls for AI agents — where widening the agent's authority isn't just blocked, it's unrepresentable."
-date: 2025-06-05
+date: 2026-06-05
 tags:
   - security
   - ai-agents
