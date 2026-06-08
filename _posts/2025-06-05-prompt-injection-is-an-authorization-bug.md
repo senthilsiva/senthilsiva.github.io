@@ -346,5 +346,5 @@ make demo-gifs          # re-render the split GIFs above (needs: brew install vh
 ```
 
 - `agent/tests/enforcement.rs` — the same contrast as a unit test (the acceptance gate).
-- `docs/THREAT_MODEL.md` / `docs/DESIGN.md` — what's claimed, what isn't, and why.
+- [`docs/THREAT_MODEL.md`](https://github.com/senthil1216/attenuate-agent/blob/main/docs/THREAT_MODEL.md) / [`docs/DESIGN.md`](https://github.com/senthil1216/attenuate-agent/blob/main/docs/DESIGN.md) — what's claimed, what isn't, and why.
 - `demo/artifacts/` — the logs behind the numbers above.
