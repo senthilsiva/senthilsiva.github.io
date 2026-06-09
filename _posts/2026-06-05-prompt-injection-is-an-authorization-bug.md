@@ -21,11 +21,15 @@ mermaid: true
 
 **🔓 `AUTHZ=off` — full ambient authority.** The injected agent reads the out-of-scope secret and exfiltrates it. Every call is `ALLOW`ed.
 
-![AUTHZ=off: the agent reads the secret canary (17 bytes) and POSTs it to the sink — every call ALLOWED](/assets/img/posts/demo-vuln.gif)
+<video autoplay loop muted playsinline width="1400" height="760" style="max-width:100%;height:auto" aria-label="AUTHZ=off: the agent reads the secret canary (17 bytes) and POSTs it to the sink — every call ALLOWED">
+  <source src="/assets/img/posts/demo-vuln.mp4" type="video/mp4">
+</video>
 
 **🔒 `AUTHZ=on` — capability enforcement.** Same intent, but the out-of-scope read and the network call are `DENY`ed *before any side effect* — and the legitimate fix still completes.
 
-![AUTHZ=on: the out-of-scope read and network egress are DENIED with named reasons; the legitimate fix still passes](/assets/img/posts/demo-protected.gif)
+<video autoplay loop muted playsinline width="1400" height="940" style="max-width:100%;height:auto" aria-label="AUTHZ=on: the out-of-scope read and network egress are DENIED with named reasons; the legitimate fix still passes">
+  <source src="/assets/img/posts/demo-protected.mp4" type="video/mp4">
+</video>
 
 ---
 
