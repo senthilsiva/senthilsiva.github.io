@@ -16,6 +16,9 @@ description: >-
 url: "https://www.senthilsiva.com"
 baseurl: ""
 
+# Default social-share (Open Graph) image used for pages/posts without their own `image:`
+social_preview_image: /assets/img/og-default.png
+
 github:
   username: senthil1216
 
