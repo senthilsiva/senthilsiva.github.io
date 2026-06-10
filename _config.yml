@@ -43,16 +43,16 @@ analytics:
 # Comments via Giscus (GitHub Discussions)
 # Setup instructions:
 # 1. Enable Discussions on your GitHub repo (Settings → General → Features)
-# 2. Visit https://giscus.app/ and select your repo: senthil1216/senthilsiva.github.io
+# 2. Visit https://giscus.app/ and select your repo: senthilsiva/senthilsiva.github.io
 # 3. Choose or create a category (e.g. "Blog Comments")
 # 4. Copy the repo_id and category_id below
 comments:
   provider: giscus
   giscus:
-    repo: senthil1216/senthilsiva.github.io
-    repo_id:          # e.g. R_kgDO... — get from https://giscus.app
-    category: Blog Comments
-    category_id:      # e.g. DIC_kwDO... — get from https://giscus.app
+    repo: senthilsiva/senthilsiva.github.io
+    repo_id: R_kgDOGfidnQ
+    category: General
+    category_id: DIC_kwDOGfidnc4C-rEX
     mapping: pathname
     strict: 0
     reactions_enabled: 1
