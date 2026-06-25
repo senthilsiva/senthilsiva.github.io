@@ -13,12 +13,14 @@ tags:
 pin: true
 comments: true
 mermaid: true
-image: /assets/img/posts/capsule-live-demo.gif
+image: /assets/img/posts/capsule-poster.jpg
 ---
 
 > **TL;DR** — There are two attacks a prompt-injected agent makes. The first — *read a secret it shouldn't and exfiltrate it* — is solved by capability boundaries and network sandboxing. The second — *data the agent read **legitimately**, now pasted into an outbound channel* — capability boundaries are *structurally unable* to catch, because the read was in-scope. Capsule is an MCP capability gateway that handles both: boundaries for Attack 1, content-based taint for Attack 2. Below is a real LLM getting injected and contained at every turn — denied, sandboxed, or held for approval, three different responses to three different threats — followed by the design, the measured numbers, and — honestly — what it still can't stop.
 
-**A live model, genuinely injected, fully contained.** The model is handed a repo README carrying a prompt injection in an HTML comment. It follows the instruction — reads the internal notes, attempts to read `~/.ssh/id_rsa`, tries `curl` exfil, and pastes the tainted notes into a PR. Capsule responds proportionally to each: **deny** the out-of-scope secret read, **sandbox** the network egress, and **hold for approval** the tainted outbound write.
+**A live model, genuinely injected, fully contained.** The model is handed a repo README carrying a prompt injection in an HTML comment. It follows the instruction — reads the internal notes, attempts to read `~/.ssh/id_rsa`, tries `curl` exfil, and pastes the tainted notes into a PR. Capsule responds proportionally to each: **deny** the out-of-scope secret read, **sandbox** the network egress, and **hold for approval** the tainted outbound write:
+
+<img src="/assets/img/posts/capsule-live-demo.gif" alt="Live model injection demo: a real LLM reads a malicious README, follows the injection, and is contained at every turn by Capsule — denied, sandboxed, or held for approval" style="max-width:100%;height:auto" />
 
 ---
 
