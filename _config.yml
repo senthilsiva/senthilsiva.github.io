@@ -4,7 +4,7 @@
 theme: jekyll-theme-chirpy
 
 lang: en
-timezone: Asia/Kolkata   # adjust if needed
+timezone: Asia/Kolkata # adjust if needed
 
 # Site identity
 title: Senthil Siva
@@ -27,11 +27,11 @@ social:
   email: mail@senthilsiva.com
   links:
     - https://github.com/senthil1216
-    - https://www.linkedin.com/in/senthil-siva-065a258
+    - https://www.linkedin.com/in/ssivasubramanian/
 
 # Theme
 toc: true
-theme_mode:   # empty = follow system + toggle available
+theme_mode: # empty = follow system + toggle available
 
 # Analytics (add later if desired)
 analytics:

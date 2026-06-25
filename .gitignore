@@ -1,5 +1,24 @@
+# Jekyll build output
 _site
-.sass-cache
 .jekyll-cache
 .jekyll-metadata
+
+# Sass
+.sass-cache
+
+# Bundler
 vendor
+.bundle/
+
+# Node (for any future tooling)
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+
+# Logs
+*.log
