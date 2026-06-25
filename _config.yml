@@ -95,10 +95,6 @@ defaults:
       toc: true
       permalink: /posts/:title/
   - scope:
-      path: _drafts
-    values:
-      comments: false
-  - scope:
       path: ""
       type: tabs
     values:

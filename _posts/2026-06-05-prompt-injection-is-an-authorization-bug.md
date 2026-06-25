@@ -13,6 +13,7 @@ tags:
 pin: true   # show prominently on home
 comments: true
 mermaid: true
+image: /assets/img/posts/prompt-injection-poster.jpg
 ---
 
 > **TL;DR** — Same injected tool-call intent. One run leaks a secret and exfiltrates it. The other denies it *before any side effect* — because the runtime's API cannot express the operation that would widen the agent's authority. This isn't a better prompt filter or a smarter detector. It's a capability-authorization boundary applied to every tool call. I'll show you the contrast, the design, and — honestly — what it does **not** defend against.
