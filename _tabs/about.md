@@ -12,7 +12,7 @@ This site is the home for longer-form technical writing on these topics and rela
 
 - **GitHub**: [senthil1216](https://github.com/senthil1216)
 - **Current work**: Engineering leader focused on cloud platforms, security, and agentic systems (Bengaluru)
-- **Contact**: [mail@senthilsiva.com](mailto:mail@senthilsiva.com)
+- **Contact**: [senthil1216@gmail.com](mailto:senthil1216@gmail.com)
 
 Previously he has worked across Oracle SaaS/PaaS and modern cloud infrastructure.
 
