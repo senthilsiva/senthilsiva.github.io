@@ -16,6 +16,14 @@ description: >-
 url: "https://www.senthilsiva.com"
 baseurl: ""
 
+# Avatar (sidebar) — self-hosted SS monogram
+avatar: /assets/img/avatar.svg
+
+# Author metadata for structured data (BlogPosting author, jekyll-seo-tag)
+author:
+  name: Senthil Siva
+  url: https://www.senthilsiva.com/about/
+
 # Default social-share (Open Graph) image used for pages/posts without their own `image:`
 social_preview_image: /assets/img/og-default.png
 
@@ -28,6 +36,9 @@ social:
   links:
     - https://github.com/senthil1216
     - https://www.linkedin.com/in/ssivasubramanian/
+    - https://x.com/senthil1216
+  twitter:
+    username: senthil1216
 
 # Theme
 toc: true

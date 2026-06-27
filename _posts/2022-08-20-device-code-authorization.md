@@ -1,7 +1,11 @@
 ---
 layout: post
-title: "Device Code Authorization"
-description: "How OAuth 2.0's device authorization grant (RFC 8628) lets a device with no browser and no keyboard obtain a token — and why its security rests entirely on binding a human's approval to the right device."
+title: "OAuth 2.0 Device Authorization Grant Security (RFC 8628)"
+description: >-
+  How OAuth 2.0's device authorization grant (RFC 8628) lets input-constrained
+  devices obtain access tokens by borrowing a second device's browser for consent,
+  and why its security depends entirely on correctly binding a human's approval to
+  a specific device.
 date: 2022-08-20
 tags:
   - oauth
@@ -9,7 +13,12 @@ tags:
   - security
 comments: true
 mermaid: true
+breadcrumbs:
+  - name: "Authorization & Capability Security"
+    url: /topics/authorization/
 ---
+
+{% include article-schema.html %}
 
 > **TL;DR** — The device authorization grant ([RFC 8628](https://www.rfc-editor.org/rfc/rfc8628)) solves a narrow problem: how does a device with no browser and an awful input method (a TV, a CLI, a thermostat) get an access token? It moves the consent step to a second device the user *does* control, and has the input-constrained device poll for the result. The mechanics are simple. The security is not — almost everything that can go wrong is a failure to bind *this human's approval* to *that specific device*.
 
@@ -96,3 +105,12 @@ The same principle that makes this flow defensible is the one I keep coming back
 ## The takeaway
 
 The device authorization grant is a small, well-specified flow, and it's easy to implement the happy path in an afternoon. The discipline is in the parts that aren't about getting a token: respecting the poll contract, keeping the `user_code` window small and rate-limited, writing a consent screen that helps a human catch a phish, and scoping the resulting token down to the minimum. The flow doesn't authenticate the user *to the device* — it borrows a second device to do it, and then trusts the server to bind the two. Get that binding right, keep the authority small, and it's a clean solution to a genuinely awkward problem.
+
+---
+
+## Related reading
+
+The principle of *least authority, shortest-lived, tightly bound* shows up across all of my writing:
+
+- [**Prompt Injection Is an Authorization Bug**](/posts/prompt-injection-is-an-authorization-bug/) — How capability-bounded tool calls make privilege escalation structurally unrepresentable in AI agents.
+- [**AI Agent Security**](/topics/ai-agent-security/) — The full series on treating agents as security principals with capability-based defenses.

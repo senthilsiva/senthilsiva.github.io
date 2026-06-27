@@ -1,0 +1,41 @@
+{%- comment -%}
+  Article structured data (JSON-LD) for blog posts.
+  Renders schema.org Article with datePublished, dateModified, author, publisher, image.
+  Expects page.title, page.description, page.date, page.last_modified_at, site.author, site.url.
+{%- endcomment -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ page.title | escape }}",
+  "description": "{{ page.description | escape }}",
+  {%- if page.image -%}
+  "image": "{{ page.image | absolute_url }}",
+  {%- endif -%}
+  "datePublished": "{{ page.date | date_to_xmlschema }}",
+  {%- if page.last_modified_at -%}
+  "dateModified": "{{ page.last_modified_at | date_to_xmlschema }}",
+  {%- else -%}
+  "dateModified": "{{ page.date | date_to_xmlschema }}",
+  {%- endif -%}
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.author.name | default: site.title | escape }}",
+    {%- if site.author.url -%}
+    "url": "{{ site.author.url | absolute_url }}"
+    {%- endif -%}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site.title | escape }}",
+    {%- if site.url -%}
+    "url": "{{ site.url | absolute_url }}"
+    {%- endif -%}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.url | absolute_url }}"
+  }
+}
+</script>
