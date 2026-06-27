@@ -1,6 +1,54 @@
 ---
 layout: home
-# Chirpy home layout — shows recent posts + sidebar (tags, etc.)
-# The personal intro lives primarily in the About tab for now.
-# We can add a custom hero section here later by overriding the home layout.
 ---
+
+<!-- WebSite structured data — enables sitelinks searchbox -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Senthil Siva",
+  "url": "https://www.senthilsiva.com/",
+  "description": "Technical writings on authorization, security, AI agents, Rust, and systems.",
+  "author": {
+    "@type": "Person",
+    "name": "Senthil Siva",
+    "url": "https://www.senthilsiva.com/about/"
+  },
+  "sameAs": [
+    "https://github.com/senthil1216",
+    "https://www.linkedin.com/in/ssivasubramanian/",
+    "https://x.com/senthil1216"
+  ],
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://www.google.com/search?q=site:senthilsiva.com {search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- Homepage H1 for SEO — visually hidden, semantically present -->
+<h1 style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">
+  Senthil Siva — Authorization, Security &amp; AI Agent Systems
+</h1>
+
+<!-- Homepage positioning statement (compact, above the fold) -->
+<div class="home-intro">
+  <p class="home-intro__lead">
+    Deep technical essays about <strong>authorization</strong>,
+    <strong>AI-agent security</strong>, and building systems where unsafe actions are
+    <em>structurally impossible</em>.
+  </p>
+  <nav aria-label="Recommended starting points" class="home-intro__links">
+    <a href="/posts/prompt-injection-is-an-authorization-bug/" class="btn btn-primary">
+      <i class="fas fa-play" aria-hidden="true"></i>&nbsp; Start here
+    </a>
+    <a href="/topics/ai-agent-security/" class="btn btn-secondary">
+      <i class="fas fa-layer-group" aria-hidden="true"></i>&nbsp; Explore the agent-security series
+    </a>
+  </nav>
+</div>

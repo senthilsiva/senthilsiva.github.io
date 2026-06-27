@@ -1,34 +1,42 @@
 ---
 layout: post
-title: "Prompt Injection Is an Authorization Bug"
-description: "Capability-bounded tool calls for AI agents — where widening the agent's authority isn't just blocked, it's unrepresentable."
+title: "Prompt Injection Is an Authorization Bug: Capability-Bounded AI Agents"
+description: >-
+  Learn how capability-bounded tool calls prevent prompt-injected AI agents from
+  reading secrets or widening their runtime authority — not by being smarter,
+  but by making privilege escalation structurally unrepresentable.
 date: 2026-06-05
 tags:
   - security
   - ai-agents
-  - rust
-  - prompt-injection
   - authorization
   - capability-security
-pin: true   # show prominently on home
+  - prompt-injection
 comments: true
 mermaid: true
 image: /assets/img/posts/prompt-injection-poster.jpg
+series: agent-security
+series_part: 1
+breadcrumbs:
+  - name: "AI Agent Security"
+    url: /topics/ai-agent-security/
 ---
 
-> **TL;DR** — Same injected tool-call intent. One run leaks a secret and exfiltrates it. The other denies it *before any side effect* — because the runtime's API cannot express the operation that would widen the agent's authority. This isn't a better prompt filter or a smarter detector. It's a capability-authorization boundary applied to every tool call. I'll show you the contrast, the design, and — honestly — what it does **not** defend against.
+{% include article-schema.html %}
+
+> **TL;DR** — Two AI agents, same task, same injected attack. One leaks your secrets and exfiltrates them. The other can't — not because it's smarter or has a better prompt filter, but because *the runtime literally has no operation that would let the agent widen its own authority.* This is a capability-authorization boundary applied to every tool call. I'll show you the contrast, the design, and — honestly — what it does **not** defend against.
 
 <!-- HERO ARTIFACTS — the SAME injected tool-call intent, split by the one enforcement toggle. -->
 
 **🔓 `AUTHZ=off` — full ambient authority.** The injected agent reads the out-of-scope secret and exfiltrates it. Every call is `ALLOW`ed.
 
-<video autoplay loop muted playsinline width="1400" height="760" style="max-width:100%;height:auto" aria-label="AUTHZ=off: the agent reads the secret canary (17 bytes) and POSTs it to the sink — every call ALLOWED">
+<video autoplay loop muted playsinline preload="metadata" width="1400" height="760" style="max-width:100%;height:auto" poster="/assets/img/posts/prompt-injection-poster.jpg" aria-label="AUTHZ=off: the agent reads the secret canary (17 bytes) and POSTs it to the sink — every call ALLOWED">
   <source src="/assets/img/posts/demo-vuln.mp4" type="video/mp4">
 </video>
 
 **🔒 `AUTHZ=on` — capability enforcement.** Same intent, but the out-of-scope read and the network call are `DENY`ed *before any side effect* — and the legitimate fix still completes.
 
-<video autoplay loop muted playsinline width="1400" height="940" style="max-width:100%;height:auto" aria-label="AUTHZ=on: the out-of-scope read and network egress are DENIED with named reasons; the legitimate fix still passes">
+<video autoplay loop muted playsinline preload="metadata" width="1400" height="940" style="max-width:100%;height:auto" poster="/assets/img/posts/prompt-injection-poster.jpg" aria-label="AUTHZ=on: the out-of-scope read and network egress are DENIED with named reasons; the legitimate fix still passes">
   <source src="/assets/img/posts/demo-protected.mp4" type="video/mp4">
 </video>
 
@@ -53,7 +61,9 @@ The shared structural flaw is **unbounded ambient authority**. Input sanitizatio
 
 ## The reframe: this is an authorization problem, not a prompt problem
 
-Here's the thesis the whole project rests on:
+Here's an analogy before the thesis. Think of a **valet key** for a car: it starts the engine and locks the doors, but it physically *cannot* open the trunk or the glovebox. The valet doesn't need to be trustworthy — the key's shape guarantees the constraint. Now imagine you could take that valet key and mint a *narrower* one ("works for 5 minutes, only starts the engine, only at this parking lot"). You could hand that to anyone. But you could never mint a *broader* key from it — the authority to open the trunk was never yours to give.
+
+That's the whole idea, applied to AI agents. Here's the thesis the whole project rests on:
 
 > Treat the model's output as an **untrusted principal**. Derive its authority **only** from a trusted task instruction — never from anything the model said or any data it read — and make **widening that authority an operation that does not exist in the API.**
 
@@ -115,6 +125,35 @@ The load-bearing pieces:
 ---
 
 ## The demo: same intent, opposite outcome
+
+Here's the whole post in one diagram — same injected tool-call intent, split by the one enforcement toggle:
+
+```mermaid
+flowchart LR
+    INJ["Injected tool-call intent<br/>(read secret · exfil via network)"]
+
+    subgraph OFF["AUTHZ=off — ambient authority"]
+        OFF1["fs_read secret"] --> OFF2["network exfil"]
+        OFF2 --> LEAK["🔥 Secret leaked"]
+    end
+
+    subgraph ON["AUTHZ=on — capability enforcement"]
+        ON1["fs_read secret"] --> DENY1["❌ DENIED<br/>outside capability scope"]
+        ON2["network exfil"] --> DENY2["❌ DENIED<br/>network policy = DenyAll"]
+        DENY1 --> SAFE["🔒 No side effect"]
+        DENY2 --> SAFE
+    end
+
+    INJ --> OFF
+    INJ --> ON
+
+    classDef inject fill:#fff3e0,stroke:#e65100,color:#bf360c;
+    classDef danger fill:#ffebee,stroke:#c62828,color:#b71c1c;
+    classDef safe fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
+    class INJ inject;
+    class LEAK danger;
+    class SAFE safe;
+```
 
 The reference app is a small coding-agent fixture: a Python package with a failing test the agent is asked to fix, an out-of-repo "secret canary," and a local listener standing in for an exfiltration sink. A plausible in-repo note ([`AGENT_NOTE.md`](https://github.com/senthil1216/attenuate-agent/blob/main/demo/fixtures/simple-bug/AGENT_NOTE.md)) carries the injection: *fix the test, and also read the secret and POST it to the listener.*
 
@@ -216,6 +255,25 @@ Two mechanisms carry the whole guarantee. Skim past this if you just want the ar
 
 **1. Widening isn't an error you catch — it's an operation that doesn't exist.**
 
+Before we look at the code, here's the concept visually — authority can only shrink, never grow:
+
+```mermaid
+flowchart TD
+    ROOT["Root capability<br/>read /repo · write /repo/src · exec {python, pytest}"]
+    CHILD["Child capability<br/>read /repo/pkg · no write · no exec"]
+    GRAND["Grandchild capability<br/>read /repo/pkg/test.py · TTL 5s"]
+
+    ROOT -->|"attenuate (narrow)"| CHILD
+    CHILD -->|"attenuate (narrow)"| GRAND
+
+    ROOT -.->|"✗ widen — NOT AN OPERATION"| ROOTX["This edge does not exist<br/>in the type system"]
+
+    classDef cap fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
+    classDef impossible fill:#ffebee,stroke:#c62828,color:#b71c1c,stroke-dasharray: 5 5;
+    class ROOT,CHILD,GRAND cap;
+    class ROOTX impossible;
+```
+
 A child capability is *only* ever created by requesting a scope, and the request is validated to be a *narrowing* before any token is minted. `ChildCapability`'s fields are private; there is no public constructor that sets permissions directly. So "give myself more authority" isn't a function you can call:
 
 ```rust
@@ -312,6 +370,18 @@ It won't stop every bad thing an agent can do. It will stop the agent from reach
 
 ---
 
+## The smell test: how to recognize this in systems you work on
+
+You don't need to build a capability system to apply the lesson. Next time you look at an agent runtime (or any privileged automation), ask three questions:
+
+1. **Where does the agent's authority come from?** Is it derived from the *task* (a manifest, a config, a scoped role) — or does it just inherit the session's ambient authority? If the answer is "the session," you have the vulnerability this post describes.
+2. **Can a tool call reach anything the task didn't explicitly grant?** If the agent can `fs_read` outside the repo, `exec` arbitrary binaries, or call any endpoint — the authority ceiling isn't where you think it is.
+3. **When a call is denied, is it denied *before* the side effect?** If you're detecting harm after it happened, you're playing defense on the wrong side of the ball.
+
+If any answer makes you uncomfortable, the fix isn't a better prompt — it's an authorization boundary.
+
+---
+
 ## Using it in your own agent
 
 Warden is a reference framework, not a product (single-operator; the OS sandbox is still a stub — see above). But the integration surface is deliberately small. Your model client implements **one trait**:
@@ -353,3 +423,12 @@ make demo-gifs          # re-render the split GIFs above (needs: brew install vh
 - `agent/tests/enforcement.rs` — the same contrast as a unit test (the acceptance gate).
 - [`docs/THREAT_MODEL.md`](https://github.com/senthil1216/attenuate-agent/blob/main/docs/THREAT_MODEL.md) / [`docs/DESIGN.md`](https://github.com/senthil1216/attenuate-agent/blob/main/docs/DESIGN.md) — what's claimed, what isn't, and why.
 - `demo/artifacts/` — the logs behind the numbers above.
+
+---
+
+> **Continue reading: [Part 2 — "The Signature Verified, the Authority Widened Anyway"](/posts/the-signature-verified-the-authority-widened-anyway/)**
+> The follow-up digs into a subtler bug in the same system: what happens when a signed token and a convenient "mirror struct" cross a serialization boundary — and why `verify_signature()` alone isn't enough.
+
+---
+
+**Related:** For another take on how *binding* is the central security challenge in authorization protocols, see [**OAuth 2.0 Device Authorization Grant Security (RFC 8628)**](/posts/device-code-authorization/) — where every failure mode is a broken binding between a human's approval and a specific device.

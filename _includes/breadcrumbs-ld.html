@@ -1,0 +1,46 @@
+{%- comment -%}
+  BreadcrumbList structured data (JSON-LD).
+  Renders Home → [Topic] → Article hierarchy for search engines.
+  Expects page.breadcrumbs (array of { name, url }) or auto-generates from page.url.
+{%- endcomment -%}
+
+{%- assign crumbs = page.breadcrumbs -%}
+
+{%- unless crumbs -%}
+  {%- assign crumbs = "" | split: "" -%}
+  {%- assign parts = page.url | split: "/" | where_exp: "item", "item != ''" -%}
+  {%- for part in parts -%}
+    {%- if forloop.first -%}
+      {%- continue -%}
+    {%- endif -%}
+    {%- assign url = part | prepend: "/" -%}
+    {%- unless forloop.last -%}
+      {%- assign url = url | append: "/" -%}
+    {%- endunless -%}
+    {%- capture crumb -%}{"name":"{{ part | replace: "-", " " | capitalize }}","url":"{{ url | absolute_url }}"}{%- endcapture -%}
+    {%- assign crumbs = crumbs | push: crumb -%}
+  {%- endfor -%}
+{%- endunless -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ '/' | absolute_url }}"
+    }{%- if crumbs %},{% endif -%}
+    {%- for crumb in crumbs -%}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.index | plus: 1 }},
+        "name": {{ crumb.name | default: crumb }},
+        "item": {{ crumb.url | default: crumb }}
+      }{%- unless forloop.last %},{% endunless -%}
+    {%- endfor -%}
+  ]
+}
+</script>

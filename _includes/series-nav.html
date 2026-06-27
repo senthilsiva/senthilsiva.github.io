@@ -1,0 +1,41 @@
+{%- comment -%}
+  Series navigation bar.
+  Expects page.series (slug) and page.series_part (integer) in front matter.
+  Renders previous/next links within the same series.
+{%- endcomment -%}
+
+{%- assign s = site.data.series | where: "slug", page.series | first -%}
+
+{%- if s -%}
+<aside class="series-nav" aria-label="Series navigation">
+  <div class="series-nav__header">
+    <span class="series-nav__badge">Part {{ page.series_part }} of {{ s.posts.size }}</span>
+    <strong class="series-nav__title">{{ s.name }}</strong>
+  </div>
+
+  {%- if s.description -%}
+  <p class="series-nav__desc">{{ s.description }}</p>
+  {%- endif -%}
+
+  <nav class="series-nav__links" aria-label="Series articles">
+    {%- for post in s.posts -%}
+      {%- if post.part == page.series_part -%}
+        <span class="series-nav__current">
+          <strong>{{ post.part }}.</strong> {{ post.title }}
+        </span>
+      {%- else -%}
+        <a href="{{ post.url | relative_url }}" class="series-nav__link">
+          <strong>{{ post.part }}.</strong> {{ post.title }}
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </nav>
+
+  {%- if s.repo -%}
+  <p class="series-nav__repo">
+    <i class="fab fa-github" aria-hidden="true"></i>
+    Code: <a href="{{ s.repo }}" target="_blank" rel="noopener noreferrer">{{ s.repo | split: "/" | last }}</a>
+  </p>
+  {%- endif -%}
+</aside>
+{%- endif -%}

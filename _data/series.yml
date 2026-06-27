@@ -1,0 +1,21 @@
+# Series definitions for related post navigation.
+# Each entry maps a series slug to its metadata.
+#
+# Usage in post front matter:
+#   series: agent-security
+#   series_part: 2
+
+- name: "Agent Security"
+  slug: agent-security
+  description: "Treating AI agents as security principals — capability boundaries, authority narrowing, and structural defenses against prompt injection."
+  posts:
+    - title: "Prompt Injection Is an Authorization Bug"
+      url: /posts/prompt-injection-is-an-authorization-bug/
+      part: 1
+    - title: "The Signature Verified, the Authority Widened Anyway"
+      url: /posts/the-signature-verified-the-authority-widened-anyway/
+      part: 2
+    - title: "Capability Boundaries Have No Memory"
+      url: /posts/the-attack-a-capability-boundary-cant-stop/
+      part: 3
+  repo: https://github.com/senthil1216/attenuate-agent
